@@ -95,7 +95,7 @@ export default function Places() {
         catch (error) {
             console.log(error)
         }
-        finally{
+        finally {
             setIsFetching(false)
         }
     }
@@ -151,6 +151,7 @@ export default function Places() {
     const [routeCoords, setRouteCoords] = useState([])
     const [orderedPlaces, setOrderedPlaces] = useState([])
     const routeRef = useRef(null)
+    const [routeLoading, setRouteLoading] = useState(false);
     const generateRoute = async () => {
         if (!location.latitude) {
             alert("Enable your location first by 'Find My location' ")
@@ -158,6 +159,7 @@ export default function Places() {
         }
         if (!location || selectedPlaces.length < 2) return
 
+        setRouteLoading(true);
         // ✅ STEP 1: nearest order (same logic)
         let remaining = [...selectedPlaces]
         let ordered = []
@@ -219,9 +221,13 @@ export default function Places() {
                 block: "start"
             })
         }, 200)
+
+        setRouteLoading(false);
+
     }
 
     const [isFetching, setIsFetching] = useState(false);
+
     const center = location.latitude && location.longitude ? [location.latitude, location.longitude] : [25.2138, 75.9630];
 
     return (
@@ -302,18 +308,18 @@ export default function Places() {
 
                     </div>
                 }
-                
+
                 {isFetching ? (
-        /* --- 1. Loading State --- */
-        <div className="py-20 flex flex-col items-center justify-center gap-4">
-            <div className="relative">
-                <div className="h-12 w-12 rounded-full border-4 border-blue-100"></div>
-                <div className="absolute top-0 h-12 w-12 rounded-full border-4 border-t-blue-500 border-transparent animate-spin"></div>
-            </div>
-            <p className="text-gray-500 font-medium animate-pulse">Searching nearby places...</p>
-        </div>
-    ):
-                    
+                    /* --- 1. Loading State --- */
+                    <div className="py-20 flex flex-col items-center justify-center gap-4">
+                        <div className="relative">
+                            <div className="h-12 w-12 rounded-full border-4 border-blue-100"></div>
+                            <div className="absolute top-0 h-12 w-12 rounded-full border-4 border-t-blue-500 border-transparent animate-spin"></div>
+                        </div>
+                        <p className="text-gray-500 font-medium animate-pulse">Searching nearby places...</p>
+                    </div>
+                ) :
+
                     sortedPlaces.length === 0 ?
                         <div className="text-center py-20">
                             <h2 className="text-xl font-semibold mb-3">
@@ -415,7 +421,7 @@ export default function Places() {
                                     <div
                                         key={place._id}
                                         onClick={() => toggleSelectPlace(place)}
-                                        className={`group relative flex flex-col bg-white rounded-4xl transition-all duration-500 p-2 cursor-pointer overflow-hidden border ${isSelected
+                                        className={`group relative flex flex-col bg-white/60 rounded-4xl transition-all duration-500 p-2 cursor-pointer overflow-hidden border ${isSelected
                                             ? "ring-2 ring-green-500 border-transparent shadow-[0_25px_60px_rgba(37,99,235,0.2)] scale-[1.02]"
                                             : "shadow-sm border-gray-100 hover:shadow-xl hover:-translate-y-2"
                                             }`}
@@ -474,7 +480,7 @@ export default function Places() {
                                             {/* Tags (Yogurt, Olive Oil style) */}
                                             <div className="flex flex-wrap gap-2 my-3">
                                                 {place.categories?.slice(0, 3).map((cat) => (
-                                                    <span key={cat} className="text-[10px] font-bold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full hover:bg-gray-200 transition-colors capitalize">
+                                                    <span key={cat} className="text-[10px] font-bold text-gray-700 bg-white/70 px-3 py-1.5 rounded-full hover:bg-gray-200 transition-colors capitalize">
                                                         {cat}
                                                     </span>
                                                 ))}
@@ -500,9 +506,21 @@ export default function Places() {
 
             {/* floating route button */}
             <section>
-                {selectedPlaces.length >= 2 && (
+                {selectedPlaces.length >= 2 && selectedPlaces.length !== orderedPlaces.length && (
                     <div className="flex justify-center">
-                        <button onClick={generateRoute} className="z-3 pop-animation fixed bottom-8 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg transform transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer" >Generate Route </button>
+                        <button onClick={generateRoute} className="z-3 pop-animation fixed bottom-8 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg transform transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer" >
+                            {routeLoading ? (
+                                <>
+                                    {/* Spinner Icon */}
+                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+
+                                </>
+                            ) : (
+                                "Generate Route"
+                            )} </button>
                     </div>
                 )}
 
