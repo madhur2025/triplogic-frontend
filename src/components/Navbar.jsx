@@ -156,7 +156,7 @@ export default function Navbar() {
     const isActive = (path) => pathname === path
 
     return (
-        <nav className="sticky top-0 left-0 right-0 z-50 flex items-center justify-center px-4 h-[13vh]">
+        <nav className="sticky top-0 left-0 right-0 z-50 flex items-center justify-center px-2 md:px-4 h-[10vh] md:h-[13vh]">
             {/* Glassmorphism Container */}
             <div className="relative w-full h-16 backdrop-blur-[4px] bg-white/40 border border-white/20 rounded-2xl shadow-lg px-6 flex items-center justify-between">
 
@@ -216,7 +216,7 @@ export default function Navbar() {
 
                 {/* 📱 Mobile Menu Dropdown */}
                 {isMenuOpen && (
-                    <div className="absolute top-[75px] left-0 right-0 bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 flex flex-col gap-5 md:hidden animate-in fade-in slide-in-from-top-4 duration-300 z-50">
+                    <div className="absolute top-[75px] left-0 right-0 bg-white/90 border border-white/20 rounded-2xl shadow-2xl p-6 flex flex-col gap-5 md:hidden animate-in fade-in slide-in-from-top-4 duration-300 z-50">
                         
                         {/* Mobile Links */}
                         <Link href="/" onClick={() => setIsMenuOpen(false)} className={`text-sm font-bold uppercase tracking-widest pb-2 border-b border-gray-100 ${isActive('/') ? 'text-blue-600' : 'text-gray-700'}`}>
