@@ -36,25 +36,11 @@ export default function Profile() {
         fetchProfile()
     }, [])
 
-    if (!userProfile) return <p>Loading...</p>
+    if (!userProfile) return <Loader />
 
     return (
-        // <div className="p-5">
-        //     <div className="bg-white rounded-2xl p-5 my-1">
-        //         <div className="bg-blue-100 rounded-xl p-4">
-        //             <p className="text-xl font-semibold">{userProfile.name}</p>
-        //             <p>{userProfile.username}</p>
-        //         </div>
-        //         <div className="bg-green-100 rounded-xl p-4 my-1">
-        //             <p>{userProfile.email}</p>
-        //             <p>{userProfile.isVerified ? "Yes" : "No"}</p>
-        //             <p><b>Joined:</b> {new Date(userProfile.createdAt).toLocaleDateString()}</p>
-        //         <button className="bg-black text-white p-2 rounded hover:bg-gray-800 cursor-pointer" onClick={handleLogout}>Logout</button>
-        //         </div>
-        //     </div>
-        // </div>
 
-        <div className="min-h-[90vh] max-w-md mx-auto p-4 sm:p-6">
+        <div className="min-h-[80vh] max-w-md mx-auto p-4 sm:p-6">
             <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
 
                 {/* 1. Header Card: Name & Username */}
@@ -102,3 +88,18 @@ export default function Profile() {
         </div>
     )
 }
+
+
+const Loader = () => (
+  <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4">
+    {/* Outer Ring */}
+    <div className="relative">
+      <div className="h-16 w-16 rounded-full border-4 border-gray-100"></div>
+      {/* Animated Spinner */}
+      <div className="absolute top-0 left-0 h-16 w-16 rounded-full border-4 border-t-blue-600 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+    </div>
+    <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 animate-pulse">
+      Fetching Profile
+    </p>
+  </div>
+);

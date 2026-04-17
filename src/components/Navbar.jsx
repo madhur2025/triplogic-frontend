@@ -121,7 +121,7 @@ export default function Navbar() {
                     ) : (
                         <Link 
                             href="/login" 
-                            className="px-6 py-2.5 bg-gray-900 text-white text-[11px] font-bold uppercase tracking-widest rounded-xl hover:bg-blue-600 transition-all shadow-xl shadow-gray-200 active:scale-95"
+                            className="px-6 py-2.5 bg-gray-800 text-white text-[11px] font-bold uppercase tracking-widest rounded-xl hover:bg-blue-600 transition-all shadow-xl shadow-gray-200 active:scale-95"
                         >
                             Login
                         </Link>

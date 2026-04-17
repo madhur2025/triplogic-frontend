@@ -69,6 +69,7 @@ export default function Places() {
     // 4 fetch all places
     const [places, setPlaces] = useState([])
     const getfilteredPlaces = async () => {
+        setIsFetching(true)
         try {
             const params = {}
 
@@ -93,6 +94,9 @@ export default function Places() {
         }
         catch (error) {
             console.log(error)
+        }
+        finally{
+            setIsFetching(false)
         }
     }
 
@@ -217,6 +221,7 @@ export default function Places() {
         }, 200)
     }
 
+    const [isFetching, setIsFetching] = useState(false);
     const center = location.latitude && location.longitude ? [location.latitude, location.longitude] : [25.2138, 75.9630];
 
     return (
@@ -262,6 +267,7 @@ export default function Places() {
 
             {/* cards */}
             <section className="bg-white/50 my-3 backdrop-blur-lg p-5 rounded-2xl shadow flex flex-col gap-y-4">
+
                 {
                     !sortedPlaces.length == 0 && <div className="flex items-center justify-between">
 
@@ -296,7 +302,18 @@ export default function Places() {
 
                     </div>
                 }
-                {
+                
+                {isFetching ? (
+        /* --- 1. Loading State --- */
+        <div className="py-20 flex flex-col items-center justify-center gap-4">
+            <div className="relative">
+                <div className="h-12 w-12 rounded-full border-4 border-blue-100"></div>
+                <div className="absolute top-0 h-12 w-12 rounded-full border-4 border-t-blue-500 border-transparent animate-spin"></div>
+            </div>
+            <p className="text-gray-500 font-medium animate-pulse">Searching nearby places...</p>
+        </div>
+    ):
+                    
                     sortedPlaces.length === 0 ?
                         <div className="text-center py-20">
                             <h2 className="text-xl font-semibold mb-3">
