@@ -1,13 +1,62 @@
+// "use client"
+// import Link from "next/link"
+// import { useAuth } from "@/context/UserContext"
+// import { useRouter } from "next/navigation"
+// export default function Navbar() {
+//     const router = useRouter()
+
+//     const { user, setUser } = useAuth()
+
+//     // ye function profile me set kr diya hai taki user waha se bhi logout kr ske
+//     const handleLogout = () => {
+//         localStorage.removeItem("token")
+//         localStorage.removeItem("name")
+//         localStorage.removeItem("username")
+//         localStorage.removeItem("role")
+//         setUser(null)
+//         router.push("/")
+//     }
+
+//     return (
+//         <nav className="sticky top-0 bg-gray-200 p-4 h-[10vh] flex items-center justify-between sticky top-0 w-full z-2">
+//             <h1>Trip logic</h1>
+//             <ul className="flex gap-4 items-center">
+//                 <li><Link href="/">Home</Link></li>
+//                 <li><Link href="/places">Explore</Link></li>
+//                 {
+//                     user?.role == "admin" && <li><Link href="/dashboard">Dashboard</Link></li>
+//                 }
+
+//                 {user ? (
+//                     <>
+//                         {/* <button className="cursor-pointer" onClick={handleLogout}>Logout</button> */}
+//                         <Link className="bg-green-300 hover:bg-green-400 h-9 w-9 rounded-3xl flex items-center justify-center font-semibold text-gray-700" href="/profile" title="profile">{user.name.charAt(0).toUpperCase()}</Link>
+//                     </>
+//                 ) : (
+//                     <>
+//                         <Link href="/login">Login</Link>
+//                         {/* <Link href="/register">Register</Link> */}
+//                     </>
+//                 )}
+
+//             </ul>
+//         </nav>
+//     )
+// }
+
+
+
+
 "use client"
 import Link from "next/link"
 import { useAuth } from "@/context/UserContext"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
+
 export default function Navbar() {
     const router = useRouter()
-
+    const pathname = usePathname() // Active link highlight karne ke liye
     const { user, setUser } = useAuth()
 
-    // ye function profile me set kr diya hai taki user waha se bhi logout kr ske
     const handleLogout = () => {
         localStorage.removeItem("token")
         localStorage.removeItem("name")
@@ -17,29 +66,68 @@ export default function Navbar() {
         router.push("/")
     }
 
+    // Active link style helper
+    const isActive = (path) => pathname === path
+
     return (
-        <nav className="bg-gray-200 p-4 h-[10vh] flex items-center justify-between">
-            <h1>Trip logic</h1>
-            <ul className="flex gap-4 items-center">
-                <li><Link href="/">Home</Link></li>
-                <li><Link href="/places">Explore</Link></li>
-                {
-                    user?.role == "admin" && <li><Link href="/dashboard">Dashboard</Link></li>
-                }
+        <nav className="sticky top-0 left-0 right-0 z-50 flex items-center justify-center px-4 h-[13vh]">
+            {/* Glassmorphism Container */}
+            <div className="w-full h-16 backdrop-blur-[4px] bg-white/40 border border-white/20 rounded-2xl shadow-lg px-6 flex items-center justify-between">
+                
+                {/* Logo Section */}
+                <Link href="/" className="flex items-center gap-2 group">
+                    <h1 className="text-xl font-bold tracking-2 text-gray-900 uppercase">
+                        Trip<span className="text-blue-600"> Logic</span>
+                    </h1>
+                </Link>
 
-                {user ? (
-                    <>
-                        {/* <button className="cursor-pointer" onClick={handleLogout}>Logout</button> */}
-                        <Link className="bg-green-300 hover:bg-green-400 h-9 w-9 rounded-3xl flex items-center justify-center font-semibold text-gray-700" href="/profile" title="profile">{user.name.charAt(0).toUpperCase()}</Link>
-                    </>
-                ) : (
-                    <>
-                        <Link href="/login">Login</Link>
-                        {/* <Link href="/register">Register</Link> */}
-                    </>
-                )}
+                {/* Navigation Links */}
+                <ul className="hidden md:flex items-center gap-8">
+                    <li>
+                        <Link href="/" className={`text-xs font-bold uppercase tracking-widest transition-colors ${isActive('/') ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
+                            Home
+                        </Link>
+                    </li>
+                    <li>
+                        <Link href="/places" className={`text-xs font-bold uppercase tracking-widest transition-colors ${isActive('/places') ? 'text-blue-600' : 'text-gray-700 hover:text-gray-900'}`}>
+                            Explore
+                        </Link>
+                    </li>
+                    {user?.role === "admin" && (
+                        <li>
+                            <Link href="/dashboard" className={`text-xs font-bold uppercase tracking-widest transition-colors ${isActive('/dashboard') ? 'text-blue-700' : 'text-gray-700 hover:text-gray-900'}`}>
+                                Dashboard
+                            </Link>
+                        </li>
+                    )}
+                </ul>
 
-            </ul>
+                {/* Right Side: Auth/Profile */}
+                <div className="flex items-center gap-4">
+                    {user ? (
+                        <div className="flex items-center gap-3">
+                           
+                            
+                            
+                            {/* Profile Avatar */}
+                            <Link 
+                                href="/profile" 
+                                className="h-10 w-10 rounded-3xl bg-gradient-to-br from-blue-500/70 to-indigo-600/50 flex items-center justify-center text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all"
+                                title="My Profile"
+                            >
+                                {user.name.charAt(0).toUpperCase()}
+                            </Link>
+                        </div>
+                    ) : (
+                        <Link 
+                            href="/login" 
+                            className="px-6 py-2.5 bg-gray-900 text-white text-[11px] font-bold uppercase tracking-widest rounded-xl hover:bg-blue-600 transition-all shadow-xl shadow-gray-200 active:scale-95"
+                        >
+                            Login
+                        </Link>
+                    )}
+                </div>
+            </div>
         </nav>
     )
 }

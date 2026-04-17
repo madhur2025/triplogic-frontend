@@ -54,7 +54,7 @@ export default function Profile() {
         //     </div>
         // </div>
 
-        <div className="max-w-md mx-auto p-4 sm:p-6">
+        <div className="min-h-[90vh] max-w-md mx-auto p-4 sm:p-6">
             <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
 
                 {/* 1. Header Card: Name & Username */}

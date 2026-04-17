@@ -1,6 +1,6 @@
 "use client"
-import { useEffect, useState } from "react"
-
+import { useEffect, useState, useRef } from "react"
+import { useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 const DynamicMap = dynamic(() => import('../../components/Map'), {
     ssr: false,
@@ -12,6 +12,7 @@ const DynamicMap = dynamic(() => import('../../components/Map'), {
 });
 
 export default function Places() {
+    const router = useRouter()
 
     // 1 get user location
     const [location, setLocation] = useState({ latitude: null, longitude: null })
@@ -142,11 +143,15 @@ export default function Places() {
         }
     }
 
-    // 10
+    // 10 route generator
     const [routeCoords, setRouteCoords] = useState([])
-    const [routeSteps, setRouteSteps] = useState([])
     const [orderedPlaces, setOrderedPlaces] = useState([])
+    const routeRef = useRef(null)
     const generateRoute = async () => {
+        if (!location.latitude) {
+            alert("Enable your location first by 'Find My location' ")
+            return
+        }
         if (!location || selectedPlaces.length < 2) return
 
         // ✅ STEP 1: nearest order (same logic)
@@ -202,21 +207,26 @@ export default function Places() {
         const latLng = geometry.map(([lng, lat]) => [lat, lng])
         setRouteCoords(latLng)
 
-        // ✅ STEP 5: steps (IMPORTANT 🔥)
-        const steps = data.features[0].properties.segments[0].steps
-        setRouteSteps(steps)
         setOrderedPlaces(ordered)
+
+        setTimeout(() => {
+            routeRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            })
+        }, 200)
     }
 
     const center = location.latitude && location.longitude ? [location.latitude, location.longitude] : [25.2138, 75.9630];
+
     return (
-        <div className="min-h-[90vh] bg-gradient-to-br from-blue-400 to-blue-200 p-4">
+        <div className="min-h-[90vh] bg-gradient-to-br from-blue-400 to-blue-200 py-2 px-4">
 
             {/* controllers */}
-            <section className="flex justify-between">
+            <section className="flex flex-col lg:flex-row justify-between gap-4 md:gap-6">
                 {/* user location */}
                 <div className="flex flex-col gap-y-3 bg-white/50 backdrop-blur-lg p-5 rounded-2xl shadow">
-                    <h3 className="text-xs text-gray-900 tracking-[1]">LOCATION</h3>
+                    <h3 className="text-xs text-gray-700 font-semibold tracking-[1]">LOCATION</h3>
                     <button onClick={getUserLocation} disabled={locationLoading}
                         className={`text-sm px-2 py-1 rounded-md cursor-pointer ${location.latitude ? 'bg-blue-500 text-white' : 'bg-white/60'}`}>
                         {locationLoading ? "Detecting" : location.latitude ? "Found you" : "Find My location"}
@@ -224,8 +234,8 @@ export default function Places() {
                 </div>
 
                 {/* distance selection */}
-                <div className="flex flex-col gap-y-3 bg-white/50 backdrop-blur-lg p-5 rounded-2xl shadow">
-                    <h3 className="text-xs text-gray-900 tracking-[1]">RANGE</h3>
+                <div className="flex flex-col gap-y-3 bg-white/50 backdrop-blur-lg p-5 rounded-2xl shadow flex-1">
+                    <h3 className="text-xs text-gray-700 font-semibold tracking-[1]">RANGE</h3>
                     <div className="flex gap-x-4">
 
                         {allDistance.map((dis) => (
@@ -238,9 +248,9 @@ export default function Places() {
                 </div>
 
                 {/* category selection */}
-                <div className="flex flex-col gap-y-3 bg-white/50 backdrop-blur-lg p-5 rounded-2xl shadow">
-                    <h3 className="text-xs text-gray-900 tracking-[1]">EXPLORE BY INTEREST</h3>
-                    <div className="flex gap-x-4">
+                <div className="flex flex-col gap-y-3 bg-white/50 backdrop-blur-lg p-5 rounded-2xl shadow flex-[1.5]">
+                    <h3 className="text-xs text-gray-700 tracking-[1] font-semibold">EXPLORE BY INTEREST</h3>
+                    <div className="flex flex-wrap gap-2">
                         {allCategories.map((cat) => (
                             <button key={cat} onClick={() => { toggleCategory(cat) }}
                                 className={`text-sm px-2 py-1 rounded-md cursor-pointer ${categories.includes(cat) ? "bg-blue-500 text-white" : "bg-white/60"}`}
@@ -297,136 +307,284 @@ export default function Places() {
                             </p>
                         </div>
                         :
+                        // <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        //     {
+
+                        //         sortedPlaces.map((place) => {
+                        //             const isSelected = selectedPlaces.some((p) => p._id === place._id);
+                        //             return (
+                        //                 <div key={place._id} onClick={() => { toggleSelectPlace(place) }} className={`pop-animation flex flex-col bg-white rounded-2xl transition-all duration-400 cursor-pointer  ${isSelected
+                        //                     ? "ring-1 ring-green-500 shadow-2xl shadow-blue-100/50 scale-[1.02]"
+                        //                     : "shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgb(0,0,0,0.1)] hover:-translate-y-1"
+                        //                     }`}>
+                        //                     <div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl">
+                        //                         <img
+                        //                             src={place.images?.[0] || "/api/placeholder/400/250"}
+                        //                             alt={place.name}
+                        //                             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        //                         />
+                        //                         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                        //                         {/* Top Badge: Professional & Minimal */}
+                        //                         <div className="absolute top-3 left-3">
+                        //                             <span className="backdrop-blur-md bg-white/80 text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full text-gray-700 shadow-sm">
+                        //                                 {place.city}
+                        //                             </span>
+                        //                         </div>
+                        //                     </div>
+
+                        //                     {/* Content Section */}
+                        //                     <div className="p-5 flex flex-col flex-grow">
+                        //                         <div className="flex justify-between items-start mb-1">
+                        //                             <h3 className="text-[16px] font-medium tracking-tight text-gray-900 leading-snug">
+                        //                                 {place.name}
+                        //                             </h3>
+                        //                             {isSelected && (
+                        //                                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500 shadow-lg shadow-blue-200">
+                        //                                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        //                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                        //                                     </svg>
+                        //                                 </span>
+                        //                             )}
+                        //                         </div>
+
+                        //                         {/* <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed mb-4">
+                        //                             {place.description}
+                        //                         </p> */}
+
+                        //                         {/* Footer: Fine details */}
+                        //                         <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                        //                             <div className="flex flex-col">
+                        //                                 {place.distance && (
+                        //                                     <>
+                        //                                         <span className="text-[10px] text-gray-400 font-medium tracking-wide">
+                        //                                             DISTANCE
+                        //                                         </span>
+                        //                                         <span className="text-[12px] text-gray-700 font-semibold">
+                        //                                             {place.distance} km
+                        //                                         </span>
+                        //                                     </>
+                        //                                 )}
+                        //                                 {
+                        //                                     place.categories.map((cat) => (
+                        //                                         <span key={cat} className="text-sm">{cat}</span>
+                        //                                     ))
+                        //                                 }
+                        //                             </div>
+
+                        //                             <button
+                        //                                 onClick={(e) => {
+                        //                                     e.stopPropagation();
+                        //                                     router.push(`/places/${place._id}`);
+                        //                                 }}
+                        //                                 className="cursor-pointer px-4 py-2 text-[12px] font-bold text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all duration-300"
+                        //                             >
+                        //                                 Explore
+                        //                             </button>
+                        //                         </div>
+                        //                     </div>
+
+                        //                 </div>
+                        //             )
+                        //         })
+                        //     }
+                        // </div>
+
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {
+                            {sortedPlaces.map((place) => {
+                                const isSelected = selectedPlaces.some((p) => p._id === place._id);
+                                return (
+                                    <div
+                                        key={place._id}
+                                        onClick={() => toggleSelectPlace(place)}
+                                        className={`group relative flex flex-col bg-white rounded-4xl transition-all duration-500 p-2 cursor-pointer overflow-hidden border ${isSelected
+                                            ? "ring-2 ring-green-500 border-transparent shadow-[0_25px_60px_rgba(37,99,235,0.2)] scale-[1.02]"
+                                            : "shadow-sm border-gray-100 hover:shadow-xl hover:-translate-y-2"
+                                            }`}
+                                    >
+                                        {/* Top Image & Floating Badge */}
+                                        <div className="relative aspect-[12/11] overflow-hidden rounded-3xl shadow">
+                                            <img
+                                                src={place.images?.[0] || "/api/placeholder/400/250"}
+                                                alt={place.name}
+                                                className="h-full w-full object-cover transition-transform duration-[2s] group-hover:scale-110"
+                                            />
 
-                                sortedPlaces.map((place) => {
-                                    const isSelected = selectedPlaces.some((p) => p._id === place._id);
-                                    return (
-                                        <div key={place._id} onClick={() => { toggleSelectPlace(place) }} className={`pop-animation flex flex-col bg-white rounded-2xl transition-all duration-400 cursor-pointer  ${isSelected
-                                            ? "ring-1 ring-green-500 shadow-2xl shadow-blue-100/50 scale-[1.02]"
-                                            : "shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgb(0,0,0,0.1)] hover:-translate-y-1"
-                                        }`}>
-                                            <div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl">
-                                                <img
-                                                    src={place.images?.[0] || "/api/placeholder/400/250"}
-                                                    alt={place.name}
-                                                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                                />
-                                                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                                                {/* Top Badge: Professional & Minimal */}
-                                                <div className="absolute top-3 left-3">
-                                                    <span className="backdrop-blur-md bg-white/80 text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full text-gray-700 shadow-sm">
-                                                        {place.city}
-                                                    </span>
-                                                </div>
+                                            {/* Top Badge (Spicy Choice style) */}
+                                            <div className="absolute top-4 left-4">
+                                                <span className="flex items-center gap-1.5 backdrop-blur-[1px] bg-white/60 px-3 py-1.5 rounded-full text-[10px] font-bold text-gray-800 shadow-sm ">{place.city}</span>
                                             </div>
 
-                                            {/* Content Section */}
-                                            <div className="p-5 flex flex-col flex-grow">
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <h3 className="text-[16px] font-medium tracking-tight text-gray-900 leading-snug">
-                                                        {place.name}
-                                                    </h3>
-                                                    {isSelected && (
-                                                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500 shadow-lg shadow-blue-200">
-                                                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                                                            </svg>
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                {/* <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed mb-4">
-                                                    {place.description}
-                                                </p> */}
-
-                                                {/* Footer: Fine details */}
-                                                <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-                                                    <div className="flex flex-col">
-                                                        {place.distance && (
-                                                            <>
-                                                                <span className="text-[10px] text-gray-400 font-medium tracking-wide">
-                                                                    DISTANCE
-                                                                </span>
-                                                                <span className="text-[12px] text-gray-700 font-semibold">
-                                                                    {place.distance} km
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                        {
-                                                            place.categories.map((cat) => (
-                                                                <span key={cat} className="text-sm">{cat}</span>
-                                                            ))
-                                                        }
-                                                    </div>
-
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            router.push(`/places/${place._id}`);
-                                                        }}
-                                                        className="cursor-pointer px-4 py-2 text-[12px] font-bold text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all duration-300"
-                                                    >
-                                                        Explore
-                                                    </button>
+                                            {/* Elegant Selection Indicator */}
+                                            <div className="absolute top-4 right-4">
+                                                <div className={`h-7 w-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isSelected ? "bg-green-500 border-green-500 scale-110" : "bg-black/10 border-white/40 backdrop-blur-md"
+                                                    }`}>
+                                                    {isSelected && <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>}
                                                 </div>
                                             </div>
-
                                         </div>
-                                    )
-                                })
-                            }
+
+                                        {/* Content Body */}
+                                        <div className="px-2 py-3 flex flex-col flex-grow rounded-3xl">
+                                            {/* Title & Stats Row (Recipe Card inspiration) */}
+                                            <div className="mb-2">
+                                                <h3 className="text-xl font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
+                                                    {place.name}
+                                                </h3>
+                                                <p className="text-[13px] text-gray-600  mt-1 leading-relaxed line-clamp-2">
+                                                    {place.description}
+                                                </p>
+                                            </div>
+
+
+                                            {/* Quick Info Bar (20 mins, 4 serving style) */}
+                                            <div className="flex items-center justify-between my-1  ">
+                                                <div className="flex flex-col items-center flex-1 border-r border-gray-100">
+                                                    <span className="text-[10px] text-gray-400 font-bold">DISTANCE</span>
+                                                    <span className="text-[12px] font-black text-gray-800 tracking-tight">{place.distance} km</span>
+                                                </div>
+                                                <div className="flex flex-col items-center flex-1 border-r border-gray-100">
+                                                    <span className="text-[10px] text-gray-400 font-bold">STATE</span>
+                                                    <span className="text-[12px] font-black text-gray-800 tracking-tight truncate px-1 w-full text-center">{place.state}</span>
+                                                </div>
+                                                {/* <div className="flex flex-col items-center flex-1">
+                                                    <span className="text-[10px] text-gray-400 font-bold">EXP</span>
+                                                    <span className="text-[12px] font-black text-gray-800 tracking-tight">Expert</span>
+                                                </div> */}
+                                            </div>
+
+                                            {/* Tags (Yogurt, Olive Oil style) */}
+                                            <div className="flex flex-wrap gap-2 my-3">
+                                                {place.categories?.slice(0, 3).map((cat) => (
+                                                    <span key={cat} className="text-[10px] font-bold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full hover:bg-gray-200 transition-colors capitalize">
+                                                        {cat}
+                                                    </span>
+                                                ))}
+                                                {place.categories?.length > 2 && <span className="text-[10px] font-bold text-gray-400  bg-gray-50 px-3 py-1.5 rounded-full">+2</span>}
+                                            </div>
+
+
+                                            {/* Action Button (Start Cooking style) */}
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); router.push(`/places/${place._id}`); }}
+                                                className="w-full bg-black text-white py-3 rounded-2xl font-semibold hover:bg-gray-900 transition-all active:scale-95 cursor-pointer"
+                                            >
+                                                Explore Now
+
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                 }
             </section>
 
+            {/* floating route button */}
             <section>
-                {/* floating route button */}
                 {selectedPlaces.length >= 2 && (
                     <div className="flex justify-center">
-                        <button onClick={generateRoute} className="pop-animation fixed bottom-8 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg transform transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer" >Generate Route </button>
+                        <button onClick={generateRoute} className="z-3 pop-animation fixed bottom-8 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg transform transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer" >Generate Route </button>
                     </div>
                 )}
 
             </section>
 
+            {/* map section */}
+            <section className="my-3" >
+                <DynamicMap places={selectedPlaces} center={center} route={routeCoords}
+                    userLocation={location.latitude && location.longitude ? { lat: location.latitude, lng: location.longitude } : null} />
+            </section>
 
-            <DynamicMap
-                places={selectedPlaces}
-                userLocation={
-                    location.latitude && location.longitude
-                        ? { lat: location.latitude, lng: location.longitude }
-                        : null
-                }
-                center={center}
-                route={routeCoords}   // 🔥 YE ADD KARO
-            />
+            {/* route section    */}
+            {/* <section ref={routeRef}>
+                {orderedPlaces.length > 0 && (
+                    <div className="bg-white p-4 rounded-xl shadow mt-4">
+                        <h2 className="font-bold mb-3">Your Route Plan</h2>
 
-            {routeSteps.length > 0 && (
-                <div className="bg-white p-4 rounded-xl shadow mt-4">
-                    <h2 className="font-bold mb-2">Route Steps</h2>
+                        <div className="text-sm mb-2">
+                            <span className="font-semibold">Start:</span> Your Location
+                        </div>
+                        {orderedPlaces.map((place, i) => (
+                            <div key={place._id} className="text-sm mb-2">
+                                <span className="font-semibold">{i + 1}.</span> {place.name}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section> */}
 
-                    {orderedPlaces.length > 0 && (
-                        <div className="bg-white p-4 rounded-xl shadow mt-4">
-                            <h2 className="font-bold mb-3">Your Route Plan</h2>
+            <section ref={routeRef}>
+                {orderedPlaces.length > 0 && (
+                    <div className="bg-white p-4 md:p-8 rounded-xl shadow-lg mt-4">
+                        <h2 className="font-bold mb-8 text-lg md:text-xl text-gray-800 tracking-tight text-center md:text-left">
+                            Your Route Plan
+                        </h2>
 
-                            {/* user start */}
-                            <div className="text-sm mb-2">
-                                <span className="font-semibold">Start:</span> Your Location
+                        {/* Stepper Container: Mobile pe Column, Desktop pe Row */}
+                        <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-8 md:gap-0">
+
+                            {/* Connector Line: Desktop (Horizontal) */}
+                            <div className="hidden md:block absolute top-5 left-0 w-full h-[2px] bg-gray-200 -z-0" />
+
+                            {/* Connector Line: Mobile (Vertical) */}
+                            <div className="absolute left-5 top-0 w-[2px] h-full bg-gray-200 md:hidden -z-0" />
+
+                            {/* --- STEP 1: USER LOCATION --- */}
+                            <div className="relative z-10 flex flex-row md:flex-col items-center md:items-center flex-1 w-full">
+                                {/* Circle */}
+                                <div className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center bg-indigo-600 border-2 border-indigo-600 text-white shadow-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+
+                                {/* Text: Mobile pe side mein, Desktop pe niche */}
+                                <div className="ml-4 md:ml-0 md:mt-3 text-left md:text-center">
+                                    <div className="text-sm font-bold text-gray-900 leading-tight">Your Location</div>
+                                    <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Starting Point</div>
+                                </div>
+
+                                {/* Active Progress Line (Desktop only) */}
+                                <div className="hidden md:block absolute top-5 left-1/2 w-full h-[2px] bg-indigo-600 -z-10" />
                             </div>
 
-                            {/* places order */}
-                            {orderedPlaces.map((place, i) => (
-                                <div key={place._id} className="text-sm mb-2">
-                                    <span className="font-semibold">{i + 1}.</span> {place.name}
-                                </div>
-                            ))}
+                            {/* --- DYNAMIC PLACES --- */}
+                            {orderedPlaces.map((place, i) => {
+                                const stepNumber = i + 2;
+                                const isActive = i === 0;
+                                const isLast = i === orderedPlaces.length - 1;
+
+                                return (
+                                    <div key={place._id} className="relative z-10 flex flex-row md:flex-col items-center md:items-center flex-1 w-full">
+
+                                        {/* Step Circle */}
+                                        <div className={`
+                w-10 h-10 shrink-0 rounded-full flex items-center justify-center border-2 transition-all duration-300 font-bold
+                ${isActive
+                                                ? 'bg-white border-indigo-600 ring-4 ring-indigo-100 text-indigo-600'
+                                                : 'bg-white border-gray-300 text-gray-400'}
+              `}>
+                                            {String(stepNumber).padStart(2, '0')}
+                                        </div>
+
+                                        {/* Text Details */}
+                                        <div className="ml-4 md:ml-0 md:mt-3 text-left md:text-center">
+                                            <div className={`text-sm font-bold ${isActive ? 'text-gray-900' : 'text-gray-500'} leading-tight`}>
+                                                {place.name}
+                                            </div>
+                                            <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
+                                                {isLast ? "Last Stop" : `Stop ${i + 1}`}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
-                    )}
-                </div>
-            )}
+                    </div>
+                )}
+            </section>
         </div>
     )
 }

@@ -116,7 +116,7 @@ useEffect(() => {
     <div
       ref={containerRef}
       style={{ minHeight: height, width: "100%" }}
-      className="rounded-2xl overflow-hidden shadow-xl"
+      className="rounded-2xl overflow-hidden shadow-xl z-1"
     />
   );
 }
