@@ -220,7 +220,7 @@ export default function Places() {
     const center = location.latitude && location.longitude ? [location.latitude, location.longitude] : [25.2138, 75.9630];
 
     return (
-        <div className="min-h-[90vh] bg-gradient-to-br from-blue-400 to-blue-200 py-2 px-4">
+        <div className="min-h-[90vh] bg-gradient-to-br from-blue-400 to-blue-200 py-6 px-4 rounded-2xl">
 
             {/* controllers */}
             <section className="flex flex-col lg:flex-row justify-between gap-4 md:gap-6">
