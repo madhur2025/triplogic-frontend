@@ -17,23 +17,105 @@ export default function Places() {
     // 1 get user location
     const [location, setLocation] = useState({ latitude: null, longitude: null })
     const [locationLoading, setLocationLoading] = useState(false)
+    // const getUserLocation = () => {
+    //     setLocationLoading(true)
+    //     navigator.geolocation.getCurrentPosition(
+    //         (pos) => {
+    //             let lat = pos.coords.latitude
+    //             let lng = pos.coords.longitude
+    //             let acc = pos.coords.accuracy
+    //             setLocation({ latitude: lat, longitude: lng })
+    //             localStorage.setItem("localLatitude", lat)
+    //             localStorage.setItem("localLongitude", lng)
+    //             localStorage.setItem("localAccuracy", acc)
+    //             setLocationLoading(false)
+    //         },
+    //         () => {
+    //             setLocationLoading(false);
+    //             if (error.code === 1) alert("Location permission denied");
+    //             else if (error.code === 3) alert("Location request timed out. Please try again.");
+    //             else alert("Location error occurred.");
+
+    //         }
+    //     )
+    // }
+
+    // working well location code 
     const getUserLocation = () => {
         setLocationLoading(true)
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                let lat = pos.coords.latitude
-                let lng = pos.coords.longitude
-                let acc = pos.coords.accuracy
-                setLocation({ latitude: lat, longitude: lng })
-                localStorage.setItem("localLatitude", lat)
-                localStorage.setItem("localLongitude", lng)
-                localStorage.setItem("localAccuracy", acc)
-                setLocationLoading(false)
-            },
-            () => {
-                alert("Location permission denied")
-            }
-        )
+
+        let bestLocation = null
+        let bestAccuracy = Infinity
+        const startTime = Date.now()
+
+        const tryGetLocation = () => {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const { latitude, longitude, accuracy } = pos.coords
+
+                    console.log("Accuracy:", accuracy)
+
+                    // ❌ bekaar data ignore (IP based)
+                    if (accuracy > 50000) {
+                        console.log("Very poor accuracy, retrying...")
+                    } else {
+                        if (accuracy < bestAccuracy) {
+                            bestAccuracy = accuracy
+                            bestLocation = { latitude, longitude }
+                        }
+                    }
+
+                    // 🎯 good enough mil gaya
+                    if (accuracy <= 300) {
+                        saveLocation(latitude, longitude, accuracy)
+                        return
+                    }
+
+                    // ⏱️ timeout
+                    if (Date.now() - startTime > 15000) {
+                        if (bestLocation) {
+                            saveLocation(
+                                bestLocation.latitude,
+                                bestLocation.longitude,
+                                bestAccuracy
+                            )
+                        } else {
+                            alert("Low accuracy location, please turn on GPS")
+                            setLocationLoading(false)
+                        }
+                        return
+                    }
+
+                    setTimeout(tryGetLocation, 2000)
+                },
+                (error) => {
+                    setLocationLoading(false)
+
+                    if (error.code === 1) alert("Location permission denied")
+                    else if (error.code === 3) alert("Location timeout")
+                    else alert("Location error")
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            )
+        }
+
+        const saveLocation = (lat, lng, acc) => {
+            console.log("Final Accuracy Used:", acc)
+
+            setLocation({ latitude: lat, longitude: lng })
+
+            localStorage.setItem("localLatitude", lat)
+            localStorage.setItem("localLongitude", lng)
+            localStorage.setItem("localAccuracy", acc)
+
+            setLocationLoading(false)
+        }
+
+        tryGetLocation()
     }
 
     // set categories

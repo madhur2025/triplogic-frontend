@@ -133,7 +133,6 @@
 // }
 
 
-
 "use client"
 import { useState } from "react"
 import Link from "next/link"
@@ -179,6 +178,7 @@ export default function Navbar() {
                             Explore
                         </Link>
                     </li>
+                    
                     {user?.role === "admin" && (
                         <li>
                             <Link href="/dashboard" className={`text-xs font-bold uppercase tracking-widest transition-colors ${isActive('/dashboard') ? 'text-blue-700' : 'text-gray-700 hover:text-gray-900'}`}>
