@@ -62,15 +62,15 @@ export default function Home() {
     }, [place])
 
     return (
-        <div className="bg-gradient-to-br from-blue-400 to-blue-200 pb-2">
+        <div className="bg-gradient-to-br from-blue-400 to-blue-200 py-4 rounded-2xl">
 
             {
                 place &&
                 <div>
-                    <div className="relative h-[80vh] bg-cover bg-center flex justify-center items-center shadow-xl rounded-b-2xl" style={{
+                    <div className="relative h-[80vh] mx-3 bg-cover bg-center flex justify-center items-center shadow-xl rounded-2xl" style={{
                         backgroundImage: place.images?.[0] ? `url(${place.images[0]})` : "none"
                     }}>
-                        <div className="absolute inset-0 bg-black/40 flex justify-center items-center">
+                        <div className="absolute inset-0 bg-black/40 flex rounded-2xl justify-center items-center">
                             <h3 className="text-5xl text-white font-thin">{place.name}</h3>
                         </div>
 
