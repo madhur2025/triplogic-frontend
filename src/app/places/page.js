@@ -94,7 +94,7 @@ export default function Places() {
     }
 
     // set categories
-    const allCategories = ["religious", "adventure", "waterfront", "tourist","historical","viewpoint", "nature", "garden", "wildlife"]
+    const allCategories = ["religious", "adventure", "waterfront", "tourist","historical","viewpoint", "nature", "wildlife","garden"]
     const [categories, setCategories] = useState([])
     const toggleCategory = (cat) => {
         let updatedCategory
