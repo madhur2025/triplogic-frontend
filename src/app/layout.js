@@ -11,7 +11,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en">
-      <body className="bg-gray-200 bg-[url('/images/explore-kota-background-image-1.png')]">
+      <body className="bg-gray-200 bg-cover bg-center bg-fixed bg-[url('/images/explore-kota-background-image-1.png')]">
         <UserProvider>
            <Toaster position="top-center" reverseOrder={false} />
           <Navbar />

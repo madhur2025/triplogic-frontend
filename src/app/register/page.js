@@ -111,10 +111,10 @@ export default function Register() {
         //     </div>
         // </div>
 
-        <div className="min-h-[90vh] flex items-center justify-center bg-gray-100">
-            <div className="bg-white p-8 rounded-2xl shadow-md w-[350px]">
+        <div className="min-h-[87vh] flex items-center justify-center">
+            <div className="bg-white/80 p-8 rounded-2xl shadow-md w-[350px]">
                 <h2 className="text-2xl font-bold text-center mb-6">
-                    Register
+                    Sign up
                 </h2>
 
                 {step === 1 && (
