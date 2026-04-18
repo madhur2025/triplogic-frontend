@@ -1,4 +1,5 @@
 "use client"
+import toast from "react-hot-toast"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -29,18 +30,18 @@ export default function Register() {
         const data = await res.json()
 
         if (!res.ok) {
-            alert(data.message)
+            toast.error(data.message)
             setLoading(false)
             return
         }
-
+        toast.success("OTP sent successfully")
         setStep(2)
         setLoading(false)
     }
 
     const verifyOtp = async () => {
         if (!otp) {
-            alert("Enter OTP")
+            toast.error("Enter OTP")
             return
         }
 
@@ -55,7 +56,7 @@ export default function Register() {
         const data = await res.json()
 
         if (!res.ok) {
-            alert(data.message)
+            toast.error(data.message)
             setLoading(false)
             return
         }

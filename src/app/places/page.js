@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast"
 import dynamic from 'next/dynamic';
 const DynamicMap = dynamic(() => import('../../components/Map'), {
     ssr: false,
@@ -17,33 +18,10 @@ export default function Places() {
     // 1 get user location
     const [location, setLocation] = useState({ latitude: null, longitude: null })
     const [locationLoading, setLocationLoading] = useState(false)
-    // const getUserLocation = () => {
-    //     setLocationLoading(true)
-    //     navigator.geolocation.getCurrentPosition(
-    //         (pos) => {
-    //             let lat = pos.coords.latitude
-    //             let lng = pos.coords.longitude
-    //             let acc = pos.coords.accuracy
-    //             setLocation({ latitude: lat, longitude: lng })
-    //             localStorage.setItem("localLatitude", lat)
-    //             localStorage.setItem("localLongitude", lng)
-    //             localStorage.setItem("localAccuracy", acc)
-    //             setLocationLoading(false)
-    //         },
-    //         () => {
-    //             setLocationLoading(false);
-    //             if (error.code === 1) alert("Location permission denied");
-    //             else if (error.code === 3) alert("Location request timed out. Please try again.");
-    //             else alert("Location error occurred.");
-
-    //         }
-    //     )
-    // }
-
-    // working well location code 
     const getUserLocation = () => {
         setLocationLoading(true)
-
+        setLocationLoading(true)
+        const loadingToast = toast.loading("Getting your location...")
         let bestLocation = null
         let bestAccuracy = Infinity
         const startTime = Date.now()
@@ -55,7 +33,7 @@ export default function Places() {
 
                     console.log("Accuracy:", accuracy)
 
-                    // ❌ bekaar data ignore (IP based)
+                    // agr accuracy 50 km se km ki mili hai toh usko best accuracy bta do kaam chalane k liye
                     if (accuracy > 50000) {
                         console.log("Very poor accuracy, retrying...")
                     } else {
@@ -65,22 +43,22 @@ export default function Places() {
                         }
                     }
 
-                    // 🎯 good enough mil gaya
+                    // acchi accuracy mil gyi toh set krdo
                     if (accuracy <= 300) {
                         saveLocation(latitude, longitude, accuracy)
+                        toast.dismiss(loadingToast)
+                        toast.success("Location detected successfully")
                         return
                     }
 
                     // ⏱️ timeout
                     if (Date.now() - startTime > 15000) {
                         if (bestLocation) {
-                            saveLocation(
-                                bestLocation.latitude,
-                                bestLocation.longitude,
-                                bestAccuracy
-                            )
+                            saveLocation(bestLocation.latitude, bestLocation.longitude, bestAccuracy)
+                            toast.dismiss(loadingToast)
+                            toast("Using best available location", { icon: "📍" })
                         } else {
-                            alert("Low accuracy location, please turn on GPS")
+                            toast.error("Low accuracy location, please try again")
                             setLocationLoading(false)
                         }
                         return
@@ -90,10 +68,10 @@ export default function Places() {
                 },
                 (error) => {
                     setLocationLoading(false)
-
-                    if (error.code === 1) alert("Location permission denied")
-                    else if (error.code === 3) alert("Location timeout")
-                    else alert("Location error")
+                    toast.dismiss(loadingToast)
+                    if (error.code === 1) toast.error("Location permission denied")
+                    else if (error.code === 3) toast.error("Location timeout, try again")
+                    else toast.error("Failed to get location")
                 },
                 {
                     enableHighAccuracy: true,
@@ -105,13 +83,10 @@ export default function Places() {
 
         const saveLocation = (lat, lng, acc) => {
             console.log("Final Accuracy Used:", acc)
-
             setLocation({ latitude: lat, longitude: lng })
-
             localStorage.setItem("localLatitude", lat)
             localStorage.setItem("localLongitude", lng)
             localStorage.setItem("localAccuracy", acc)
-
             setLocationLoading(false)
         }
 
@@ -138,6 +113,11 @@ export default function Places() {
     const allDistance = [3, 5, 10, 15, 20]
     const [distance, setDistance] = useState(null)
     const toggleDistance = (dis) => {
+        // iski jagah button ko disable bhi kr skte hai
+        if (!location.latitude) {
+            alert("turn on location first")
+            return
+        }
         if (distance === dis) {
             setDistance(null)
             localStorage.removeItem("localDistance")
@@ -201,8 +181,12 @@ export default function Places() {
     const [selectedPlaces, setSelectedPlaces] = useState([])
     const toggleSelectPlace = (place) => {
         let updatedSelect
-        if (selectedPlaces.includes(place)) { updatedSelect = selectedPlaces.filter((pls) => pls._id !== place._id) }
-        else { updatedSelect = [...selectedPlaces, place] }
+        if (selectedPlaces.includes(place)) {
+            updatedSelect = selectedPlaces.filter((pls) => pls._id !== place._id)
+        }
+        else {
+            updatedSelect = [...selectedPlaces, place]
+        }
         setSelectedPlaces(updatedSelect)
         console.log(updatedSelect)
     }
@@ -210,16 +194,17 @@ export default function Places() {
     // 9 api
     const getRouteFromORS = async (coords) => {
         try {
-            const res = await fetch("https://api.openrouteservice.org/v2/directions/driving-car/geojson", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImU1YTA5YjM1OTY0ODQ4ZDViZjZmYjY5MmY4ZGEzNDMyIiwiaCI6Im11cm11cjY0In0="
-                },
-                body: JSON.stringify({
-                    coordinates: coords
+            const res = await fetch("https://api.openrouteservice.org/v2/directions/driving-car/geojson",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImU1YTA5YjM1OTY0ODQ4ZDViZjZmYjY5MmY4ZGEzNDMyIiwiaCI6Im11cm11cjY0In0="
+                    },
+                    body: JSON.stringify({
+                        coordinates: coords
+                    })
                 })
-            })
 
             const data = await res.json()
 
@@ -239,7 +224,7 @@ export default function Places() {
             alert("Enable your location first by 'Find My location' ")
             return
         }
-        if (!location || selectedPlaces.length < 2) return
+        // if (!location || selectedPlaces.length < 2) return
 
         setRouteLoading(true);
         // ✅ STEP 1: nearest order (same logic)
@@ -313,7 +298,7 @@ export default function Places() {
     const center = location.latitude && location.longitude ? [location.latitude, location.longitude] : [25.2138, 75.9630];
 
     return (
-        <div className="min-h-[90vh] bg-gradient-to-br from-blue-400 to-blue-200 py-6 px-4 rounded-2xl">
+        <div className="min-h-[90vh] bg-gradient-to-br from-blue-400 to-blue-200 py-5 px-4 rounded-2xl">
 
             {/* controllers */}
             <section className="flex flex-col lg:flex-row justify-between gap-4 md:gap-6">
@@ -330,9 +315,9 @@ export default function Places() {
                 <div className="flex flex-col gap-y-3 bg-white/50 backdrop-blur-lg p-5 rounded-2xl shadow flex-1">
                     <h3 className="text-xs text-gray-700 font-semibold tracking-[1]">RANGE</h3>
                     <div className="flex gap-x-4">
-
                         {allDistance.map((dis) => (
-                            <button key={dis} onClick={() => { toggleDistance(dis) }} disabled={!location.latitude}
+                            <button key={dis} onClick={() => { toggleDistance(dis) }}
+                                // disabled={!location.latitude}
                                 className={`text-sm px-2 py-1 rounded-md cursor-pointer ${location.latitude === null ? "text-gray-500" : "text-black"} ${distance === dis ? "bg-blue-500 text-white" : "bg-white/60"}`}
                             >{dis} km</button>
                         ))
@@ -353,37 +338,30 @@ export default function Places() {
                 </div>
             </section>
 
-            {/* cards */}
             <section className="bg-white/50 my-3 backdrop-blur-lg p-5 rounded-2xl shadow flex flex-col gap-y-4">
 
-                {
-                    !sortedPlaces.length == 0 && <div className="flex items-center justify-between">
+                {!sortedPlaces.length == 0 &&
+                    <div className="flex items-center justify-between">
 
+                        {/* place counter */}
                         <p className="text-sm"> <span className="px-2 py-1 rounded-full bg-red-200">{places.length}</span> Locations found</p>
 
                         {/* sorting buttons */}
-                        {
-                            location.latitude && <div className="flex items-center bg-white/40 backdrop-blur-lg p-1 rounded-xl shadow-inner w-fit">
+                        {location.latitude &&
+                            <div className="flex items-center bg-white/40 backdrop-blur-lg p-1 rounded-xl shadow-inner w-fit">
 
                                 <button
                                     onClick={() => setSortType("nearest")}
                                     className={`cursor-pointer px-2 py-1 text-xs rounded-lg transition-all duration-300 
-    ${sortType === "nearest"
-                                            ? "bg-white text-black shadow font-medium scale-105"
-                                            : "text-gray-600 hover:text-black"
-                                        }`}
-                                >
-                                    Nearest
+                                    ${sortType === "nearest" ? "bg-white text-black shadow font-medium scale-105" : "text-gray-600 hover:text-black"
+                                        }`}>Nearest
                                 </button>
 
                                 <button
                                     onClick={() => setSortType("furthest")}
                                     className={`cursor-pointer px-2 py-1 text-xs rounded-lg transition-all duration-300 
-    ${sortType === "furthest"
-                                            ? "bg-white text-black shadow font-medium scale-105"
-                                            : "text-gray-600 hover:text-black"
-                                        }`}
-                                >Furthest</button>
+                                    ${sortType === "furthest" ? "bg-white text-black shadow font-medium scale-105" : "text-gray-600 hover:text-black"}`}>Furthest
+                                </button>
 
                             </div>
                         }
@@ -392,7 +370,6 @@ export default function Places() {
                 }
 
                 {isFetching ? (
-                    /* --- 1. Loading State --- */
                     <div className="py-20 flex flex-col items-center justify-center gap-4">
                         <div className="relative">
                             <div className="h-12 w-12 rounded-full border-4 border-blue-100"></div>
@@ -401,7 +378,6 @@ export default function Places() {
                         <p className="text-gray-500 font-medium animate-pulse">Searching nearby places...</p>
                     </div>
                 ) :
-
                     sortedPlaces.length === 0 ?
                         <div className="text-center py-20">
                             <h2 className="text-xl font-semibold mb-3">
@@ -412,90 +388,6 @@ export default function Places() {
                             </p>
                         </div>
                         :
-                        // <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        //     {
-
-                        //         sortedPlaces.map((place) => {
-                        //             const isSelected = selectedPlaces.some((p) => p._id === place._id);
-                        //             return (
-                        //                 <div key={place._id} onClick={() => { toggleSelectPlace(place) }} className={`pop-animation flex flex-col bg-white rounded-2xl transition-all duration-400 cursor-pointer  ${isSelected
-                        //                     ? "ring-1 ring-green-500 shadow-2xl shadow-blue-100/50 scale-[1.02]"
-                        //                     : "shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgb(0,0,0,0.1)] hover:-translate-y-1"
-                        //                     }`}>
-                        //                     <div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl">
-                        //                         <img
-                        //                             src={place.images?.[0] || "/api/placeholder/400/250"}
-                        //                             alt={place.name}
-                        //                             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        //                         />
-                        //                         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                        //                         {/* Top Badge: Professional & Minimal */}
-                        //                         <div className="absolute top-3 left-3">
-                        //                             <span className="backdrop-blur-md bg-white/80 text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full text-gray-700 shadow-sm">
-                        //                                 {place.city}
-                        //                             </span>
-                        //                         </div>
-                        //                     </div>
-
-                        //                     {/* Content Section */}
-                        //                     <div className="p-5 flex flex-col flex-grow">
-                        //                         <div className="flex justify-between items-start mb-1">
-                        //                             <h3 className="text-[16px] font-medium tracking-tight text-gray-900 leading-snug">
-                        //                                 {place.name}
-                        //                             </h3>
-                        //                             {isSelected && (
-                        //                                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500 shadow-lg shadow-blue-200">
-                        //                                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        //                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                        //                                     </svg>
-                        //                                 </span>
-                        //                             )}
-                        //                         </div>
-
-                        //                         {/* <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed mb-4">
-                        //                             {place.description}
-                        //                         </p> */}
-
-                        //                         {/* Footer: Fine details */}
-                        //                         <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-                        //                             <div className="flex flex-col">
-                        //                                 {place.distance && (
-                        //                                     <>
-                        //                                         <span className="text-[10px] text-gray-400 font-medium tracking-wide">
-                        //                                             DISTANCE
-                        //                                         </span>
-                        //                                         <span className="text-[12px] text-gray-700 font-semibold">
-                        //                                             {place.distance} km
-                        //                                         </span>
-                        //                                     </>
-                        //                                 )}
-                        //                                 {
-                        //                                     place.categories.map((cat) => (
-                        //                                         <span key={cat} className="text-sm">{cat}</span>
-                        //                                     ))
-                        //                                 }
-                        //                             </div>
-
-                        //                             <button
-                        //                                 onClick={(e) => {
-                        //                                     e.stopPropagation();
-                        //                                     router.push(`/places/${place._id}`);
-                        //                                 }}
-                        //                                 className="cursor-pointer px-4 py-2 text-[12px] font-bold text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all duration-300"
-                        //                             >
-                        //                                 Explore
-                        //                             </button>
-                        //                         </div>
-                        //                     </div>
-
-                        //                 </div>
-                        //             )
-                        //         })
-                        //     }
-                        // </div>
-
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {sortedPlaces.map((place) => {
                                 const isSelected = selectedPlaces.some((p) => p._id === place._id);
@@ -587,50 +479,29 @@ export default function Places() {
             </section>
 
             {/* floating route button */}
-            <section>
-                {selectedPlaces.length >= 2 && selectedPlaces.length !== orderedPlaces.length && (
-                    <div className="flex justify-center">
-                        <button onClick={generateRoute} className="z-3 pop-animation fixed bottom-8 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg transform transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer" >
-                            {routeLoading ? (
-                                <>
-                                    {/* Spinner Icon */}
-                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
+            {selectedPlaces.length >= 1 && selectedPlaces.length !== orderedPlaces.length && (
+                <div className="flex justify-center">
+                    <button onClick={generateRoute} className="z-3 pop-animation fixed bottom-8 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg transform transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer" >
+                        {routeLoading ? (
+                            <>
+                                {/* Spinner Icon */}
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
 
-                                </>
-                            ) : (
-                                "Generate Route"
-                            )} </button>
-                    </div>
-                )}
-
-            </section>
+                            </>
+                        ) : (
+                            "Generate Route"
+                        )} </button>
+                </div>
+            )}
 
             {/* map section */}
             <section className="my-3" >
                 <DynamicMap places={selectedPlaces} center={center} route={routeCoords}
                     userLocation={location.latitude && location.longitude ? { lat: location.latitude, lng: location.longitude } : null} />
             </section>
-
-            {/* route section    */}
-            {/* <section ref={routeRef}>
-                {orderedPlaces.length > 0 && (
-                    <div className="bg-white p-4 rounded-xl shadow mt-4">
-                        <h2 className="font-bold mb-3">Your Route Plan</h2>
-
-                        <div className="text-sm mb-2">
-                            <span className="font-semibold">Start:</span> Your Location
-                        </div>
-                        {orderedPlaces.map((place, i) => (
-                            <div key={place._id} className="text-sm mb-2">
-                                <span className="font-semibold">{i + 1}.</span> {place.name}
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </section> */}
 
             <section ref={routeRef}>
                 {orderedPlaces.length > 0 && (
@@ -677,12 +548,7 @@ export default function Places() {
                                     <div key={place._id} className="relative z-10 flex flex-row md:flex-col items-center md:items-center flex-1 w-full">
 
                                         {/* Step Circle */}
-                                        <div className={`
-                w-10 h-10 shrink-0 rounded-full flex items-center justify-center border-2 transition-all duration-300 font-bold
-                ${isActive
-                                                ? 'bg-white border-indigo-600 ring-4 ring-indigo-100 text-indigo-600'
-                                                : 'bg-white border-gray-300 text-gray-400'}
-              `}>
+                                        <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center border-2 transition-all duration-300 font-bold ${isActive ? 'bg-white border-indigo-600 ring-4 ring-indigo-100 text-indigo-600' : 'bg-white border-gray-300 text-gray-400'}`}>
                                             {String(stepNumber).padStart(2, '0')}
                                         </div>
 
