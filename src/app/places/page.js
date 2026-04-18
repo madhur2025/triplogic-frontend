@@ -94,7 +94,7 @@ export default function Places() {
     }
 
     // set categories
-    const allCategories = ["religious", "adventure", "waterfront", "tourist","historical","viewpoint", "nature", "wildlife","garden"]
+    const allCategories = ["religious", "adventure", "waterfront", "tourist", "historical", "viewpoint", "nature", "wildlife", "garden"]
     const [categories, setCategories] = useState([])
     const toggleCategory = (cat) => {
         let updatedCategory
@@ -110,7 +110,7 @@ export default function Places() {
     }
 
     // 3 set distance
-    const allDistance = [3, 5, 10, 15, 20]
+    const allDistance = [3, 5, 10, 15, 20, 30]
     const [distance, setDistance] = useState(null)
     const toggleDistance = (dis) => {
         // iski jagah button ko disable bhi kr skte hai
