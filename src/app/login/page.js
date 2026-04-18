@@ -51,7 +51,7 @@ export default function Login() {
                     <input name="username" value={form.username} onChange={handleChange} placeholder="Username" required className="border p-2 rounded" />
                     <input name="password" value={form.password} onChange={handleChange} placeholder="Password" required className="border p-2 rounded" />
                     <button type="submit" className="bg-black text-white p-2 rounded hover:bg-gray-800 cursor-pointer" >Login</button>
-                    <p className="text-sm text-center text-gray-600">Don't have an account ? <Link className="font-semibold" href="/register">Signup</Link> </p>
+                    <p className="text-sm text-center text-gray-600">Don't have an account ? <Link className="font-semibold text-blue-600" href="/register">Signup</Link> </p>
                 </form>
             </div>
         </div>
