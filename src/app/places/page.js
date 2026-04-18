@@ -110,7 +110,7 @@ export default function Places() {
     }
 
     // 3 set distance
-    const allDistance = [3, 5, 10, 15, 20, 30]
+    const allDistance = [3, 5, 10, 15, 20]
     const [distance, setDistance] = useState(null)
     const toggleDistance = (dis) => {
         // iski jagah button ko disable bhi kr skte hai
