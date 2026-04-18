@@ -332,7 +332,7 @@ export default function Places() {
                         {allCategories.map((cat) => (
                             <button key={cat} onClick={() => { toggleCategory(cat) }}
                                 className={`text-sm px-2 py-1 rounded-md cursor-pointer ${categories.includes(cat) ? "bg-blue-500 text-white" : "bg-white/60"}`}
-                            >{cat}</button>
+                            >{cat.charAt(0).toUpperCase()}</button>
                         ))}
                     </div>
                 </div>
