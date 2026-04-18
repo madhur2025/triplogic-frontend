@@ -243,7 +243,7 @@ export default function Navbar() {
                                 </button>
                             </>
                         ) : (
-                            <Link href="/login" onClick={() => setIsMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-blue-600 pt-2">
+                            <Link href="/login" onClick={() => setIsMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-gray-700 pt-2">
                                 Login
                             </Link>
                         )}
