@@ -115,7 +115,7 @@ export default function Places() {
     const toggleDistance = (dis) => {
         // iski jagah button ko disable bhi kr skte hai
         if (!location.latitude) {
-            alert("turn on location first")
+            toast.info("Enable location to use this feature.")
             return
         }
         if (distance === dis) {
