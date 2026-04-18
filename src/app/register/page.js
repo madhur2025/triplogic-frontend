@@ -111,7 +111,7 @@ export default function Register() {
         //     </div>
         // </div>
 
-        <div className="min-h-[87vh] flex items-center justify-center">
+        <div className="h-[70vh] md:h-[87vh] flex items-center justify-center">
             <div className="bg-white/80 p-8 rounded-2xl shadow-md w-[350px]">
                 <h2 className="text-2xl font-bold text-center mb-6">
                     Signup
