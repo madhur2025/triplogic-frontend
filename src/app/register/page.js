@@ -127,7 +127,7 @@ export default function Register() {
                             {loading ? "Sending OTP..." : "Send OTP"}
                         </button>
 
-                        <p className="text-sm text-center text-gray-600">Already have an account ? <Link className="font-semibold text-blue-600" href="/login">Login</Link> </p>
+                        <p className="text-sm text-center text-gray-600">Already have an account ? <Link className="font-semibold" href="/login">Login</Link> </p>
                     </form>
                 )}
 

@@ -44,14 +44,14 @@ export default function Login() {
     }
 
     return (
-        <div className="h-[87vh] flex items-center justify-center">
+        <div className="md:h-[80vh] h-[87vh] flex items-center justify-center">
             <div className="bg-white/80 p-8 rounded-2xl shadow-md w-[350px]">
                 <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <input name="username" value={form.username} onChange={handleChange} placeholder="Username" required className="border p-2 rounded" />
                     <input name="password" value={form.password} onChange={handleChange} placeholder="Password" required className="border p-2 rounded" />
                     <button type="submit" className="bg-black text-white p-2 rounded hover:bg-gray-800 cursor-pointer" >Login</button>
-                    <p className="text-sm text-center text-gray-600">Don't have an account ? <Link className="font-semibold text-blue-600" href="/register">Signup</Link> </p>
+                    <p className="text-sm text-center text-gray-600">Don't have an account ? <Link className="font-semibold" href="/register">Signup</Link> </p>
                 </form>
             </div>
         </div>
