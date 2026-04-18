@@ -21,7 +21,7 @@ export default function Places() {
     const getUserLocation = () => {
         setLocationLoading(true)
         setLocationLoading(true)
-        const loadingToast = toast.loading("Getting your location...")
+        const loadingToast = toast.loading("Finding your location...")
         let bestLocation = null
         let bestAccuracy = Infinity
         const startTime = Date.now()
@@ -47,7 +47,7 @@ export default function Places() {
                     if (accuracy <= 300) {
                         saveLocation(latitude, longitude, accuracy)
                         toast.dismiss(loadingToast)
-                        toast.success("Location detected successfully")
+                        toast.success("Got your location!")
                         return
                     }
 
@@ -58,7 +58,7 @@ export default function Places() {
                             toast.dismiss(loadingToast)
                             toast("Using best available location", { icon: "📍" })
                         } else {
-                            toast.error("Low accuracy location, please try again")
+                            toast.error("Accuracy is too low, retry")
                             setLocationLoading(false)
                         }
                         return
@@ -69,9 +69,9 @@ export default function Places() {
                 (error) => {
                     setLocationLoading(false)
                     toast.dismiss(loadingToast)
-                    if (error.code === 1) toast.error("Location permission denied")
-                    else if (error.code === 3) toast.error("Location timeout, try again")
-                    else toast.error("Failed to get location")
+                    if (error.code === 1) toast.error("Location access denied")
+                    else if (error.code === 3) toast.error("Location request timed out")
+                    else toast.error("Couldn't find you, try again")
                 },
                 {
                     enableHighAccuracy: true,
