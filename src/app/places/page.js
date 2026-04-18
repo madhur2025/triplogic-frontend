@@ -314,7 +314,7 @@ export default function Places() {
                 {/* distance selection */}
                 <div className="flex flex-col gap-y-3 bg-white/50 backdrop-blur-lg p-5 rounded-2xl shadow flex-1">
                     <h3 className="text-xs text-gray-700 font-semibold tracking-[1]">RANGE</h3>
-                    <div className="flex gap-x-4">
+                    <div className="flex gap-2">
                         {allDistance.map((dis) => (
                             <button key={dis} onClick={() => { toggleDistance(dis) }}
                                 // disabled={!location.latitude}
