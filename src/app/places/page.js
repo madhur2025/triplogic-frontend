@@ -331,8 +331,8 @@ export default function Places() {
                     <div className="flex flex-wrap gap-2">
                         {allCategories.map((cat) => (
                             <button key={cat} onClick={() => { toggleCategory(cat) }}
-                                className={`text-sm px-2 py-1 rounded-md cursor-pointer ${categories.includes(cat) ? "bg-blue-500 text-white" : "bg-white/60"}`}
-                            >{cat.charAt(0).toUpperCase}</button>
+                                className={`text-sm px-2 py-1 rounded-md cursor-pointer capitalize ${categories.includes(cat) ? "bg-blue-500 text-white" : "bg-white/60"}`}
+                            >{cat}</button>
                         ))}
                     </div>
                 </div>
