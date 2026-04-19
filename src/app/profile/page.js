@@ -19,6 +19,22 @@ export default function Profile() {
         router.push("/")
     }
 
+    const handleDeleteAccount = async (id) => {
+        if (!confirm("Delete Account ?")) return;
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/delete/${id}`, { method: "DELETE" })
+            localStorage.removeItem("token")
+            localStorage.removeItem("name")
+            localStorage.removeItem("username")
+            localStorage.removeItem("role")
+            setUser(null)
+            router.push("/")
+        }
+        catch (error) {
+            alert(error)
+        }
+    }
+
     useEffect(() => {
         const fetchProfile = async () => {
             const token = localStorage.getItem("token")
@@ -76,13 +92,13 @@ export default function Profile() {
                     </div>
                 </div>
 
+                <button className="w-full mt-4 bg-red-50 text-red-600 py-3 rounded-2xl font-semibold hover:bg-red-100 transition-all active:scale-95 cursor-pointer border border-red-100" onClick={() => { handleDeleteAccount(userProfile._id) }}> Delete Account</button>
+
                 {/* 3. Action Button */}
-                <button
-                    className="w-full mt-6 bg-black text-white py-3 rounded-2xl font-semibold hover:bg-gray-800 transition-all active:scale-95 cursor-pointer"
-                    onClick={handleLogout}
-                >
-                    Logout Account
-                </button>
+                <button className="w-full mt-4 bg-black text-white py-3 rounded-2xl font-semibold hover:bg-gray-800 transition-all active:scale-95 cursor-pointer" onClick={handleLogout}>
+                    Logout Account</button>
+
+
 
             </div>
         </div>
@@ -91,15 +107,15 @@ export default function Profile() {
 
 
 const Loader = () => (
-  <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4">
-    {/* Outer Ring */}
-    <div className="relative">
-      <div className="h-16 w-16 rounded-full border-4 border-gray-100"></div>
-      {/* Animated Spinner */}
-      <div className="absolute top-0 left-0 h-16 w-16 rounded-full border-4 border-t-blue-600 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+    <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4">
+        {/* Outer Ring */}
+        <div className="relative">
+            <div className="h-16 w-16 rounded-full border-4 border-gray-100"></div>
+            {/* Animated Spinner */}
+            <div className="absolute top-0 left-0 h-16 w-16 rounded-full border-4 border-t-blue-600 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+        </div>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 animate-pulse">
+            Fetching Profile
+        </p>
     </div>
-    <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 animate-pulse">
-      Fetching Profile
-    </p>
-  </div>
 );
