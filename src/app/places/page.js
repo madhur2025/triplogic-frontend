@@ -395,81 +395,80 @@ export default function Places() {
                                     <div
                                         key={place._id}
                                         onClick={() => toggleSelectPlace(place)}
-                                        className={`group relative flex flex-col bg-white/60 rounded-4xl transition-all duration-500 p-2 cursor-pointer overflow-hidden border ${isSelected
-                                            ? "ring-2 ring-green-500 border-transparent shadow-[0_25px_60px_rgba(37,99,235,0.2)] scale-[1.02]"
-                                            : "shadow-sm border-gray-100 hover:shadow-xl hover:-translate-y-2"
+                                        className={`group relative flex flex-col bg-white rounded-[2.5rem] transition-all duration-500 p-3 cursor-pointer overflow-hidden border ${isSelected
+                                            ? "ring-2 ring-green-500 border-transparent shadow-2xl scale-[1.02]"
+                                            : "shadow-sm border-gray-100 hover:shadow-xl hover:-translate-y-1"
                                             }`}
                                     >
-                                        {/* Top Image & Floating Badge */}
-                                        <div className="relative aspect-[12/11] overflow-hidden rounded-3xl shadow">
+                                        {/* Image Section */}
+                                        <div className="relative aspect-[12/10] overflow-hidden rounded-[2rem] shadow-inner">
                                             <img
                                                 src={place.images?.[0] || "/api/placeholder/400/250"}
                                                 alt={place.name}
-                                                className="h-full w-full object-cover transition-transform duration-[2s] group-hover:scale-110"
+                                                className="h-full w-full object-cover transition-transform duration-[1.5s] group-hover:scale-110"
                                             />
 
-                                            {/* Top Badge (Spicy Choice style) */}
-                                            <div className="absolute top-4 left-4">
-                                                <span className="flex items-center gap-1.5 backdrop-blur-[1px] bg-white/60 px-3 py-1.5 rounded-full text-[10px] font-bold text-gray-800 shadow-sm ">{place.city}</span>
+                                            {/* Floating Badge (City) */}
+                                            <div className="absolute top-3 left-3">
+                                                <span className="backdrop-blur-[1px] bg-white/40 px-3 py-1.5 rounded-full text-[10px] font-bold text-gray-800 uppercase tracking-wider">
+                                                    {place.city}
+                                                </span>
                                             </div>
 
-                                            {/* Elegant Selection Indicator */}
-                                            <div className="absolute top-4 right-4">
-                                                <div className={`h-7 w-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isSelected ? "bg-green-500 border-green-500 scale-110" : "bg-black/10 border-white/40 backdrop-blur-md"
+                                            {/* Selection Indicator */}
+                                            <div className="absolute top-3 right-3">
+                                                <div className={`h-8 w-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isSelected ? "bg-green-500 border-green-500 scale-110" : "bg-white/20 border-white/40 backdrop-blur-md"
                                                     }`}>
-                                                    {isSelected && <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>}
+                                                    {isSelected && (
+                                                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Content Body */}
-                                        <div className="px-2 py-3 flex flex-col flex-grow rounded-3xl">
-                                            {/* Title & Stats Row (Recipe Card inspiration) */}
-                                            <div className="mb-2">
-                                                <h3 className="text-xl font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
+                                        <div className="px-2 pt-4 pb-2 flex flex-col gap-3">
+                                            {/* Title & Description */}
+                                            <div>
+                                                <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
                                                     {place.name}
                                                 </h3>
-                                                <p className="text-[13px] text-gray-600  mt-1 leading-relaxed line-clamp-2">
+                                                <p className="text-xs text-gray-500 mt-1 line-clamp-2 font-medium">
                                                     {place.description}
                                                 </p>
                                             </div>
 
-
-                                            {/* Quick Info Bar (20 mins, 4 serving style) */}
-                                            <div className="flex items-center justify-between my-1  ">
-                                                <div className="flex flex-col items-center flex-1 border-r border-gray-100">
-                                                    <span className="text-[10px] text-gray-400 font-bold">DISTANCE</span>
-                                                    <span className="text-[12px] font-black text-gray-800 tracking-tight">{place.distance} km</span>
-                                                </div>
-                                                <div className="flex flex-col items-center flex-1 border-r border-gray-100">
-                                                    <span className="text-[10px] text-gray-400 font-bold">STATE</span>
-                                                    <span className="text-[12px] font-black text-gray-800 tracking-tight truncate px-1 w-full text-center">{place.state}</span>
-                                                </div>
-                                                {/* <div className="flex flex-col items-center flex-1">
-                                                    <span className="text-[10px] text-gray-400 font-bold">EXP</span>
-                                                    <span className="text-[12px] font-black text-gray-800 tracking-tight">Expert</span>
-                                                </div> */}
-                                            </div>
-
-                                            {/* Tags (Yogurt, Olive Oil style) */}
-                                            <div className="flex flex-wrap gap-2 my-3">
-                                                {place.categories?.slice(0, 3).map((cat) => (
-                                                    <span key={cat} className="text-[10px] font-bold text-gray-700 bg-white/70 px-3 py-1.5 rounded-full hover:bg-gray-200 transition-colors capitalize">
+                                            {/* Categories Section (Moved here) */}
+                                            <div className="flex flex-wrap gap-2 py-1 border-y border-gray-50">
+                                                {place.categories?.slice(0, 3).map((cat, i) => (
+                                                    <span key={i} className="text-[10px] font-bold text-gray-700 bg-gray-100 px-3 py-1.5 rounded-full hover:bg-gray-200 transition-colors capitalize">
                                                         {cat}
                                                     </span>
                                                 ))}
-                                                {place.categories?.length > 2 && <span className="text-[10px] font-bold text-gray-400  bg-gray-50 px-3 py-1.5 rounded-full">+2</span>}
                                             </div>
 
+                                            {/* Distance, State & Action Button (Stats moved here) */}
+                                            <div className="flex items-center justify-around gap-2 mt-1" >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                                                        <span className="text-[11px] font-bold text-gray-700">{place.distance} Km</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <div className="h-2 w-2 rounded-full bg-orange-400"></div>
+                                                        <span className="text-[11px] font-bold text-gray-700 capitalize">{place.state}</span>
+                                                    </div>
+                                                </div>
 
-                                            {/* Action Button (Start Cooking style) */}
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); router.push(`/places/${place._id}`); }}
-                                                className="w-full bg-black text-white py-3 rounded-2xl font-semibold hover:bg-gray-900 transition-all active:scale-95 cursor-pointer"
-                                            >
-                                                Explore Now
-
-                                            </button>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); router.push(`/places/${place._id}`); }}
+                                                    className="bg-gray-900 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-[11px] font-semibold transition-all active:scale-95 shadow-lg shadow-gray-200"
+                                                >
+                                                    View Details
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 );
@@ -571,3 +570,88 @@ export default function Places() {
         </div>
     )
 }
+
+
+
+
+
+
+
+// <div
+//     key={place._id}
+//     onClick={() => toggleSelectPlace(place)}
+//     className={`group relative flex flex-col bg-white/60 rounded-4xl transition-all duration-500 p-2 cursor-pointer overflow-hidden border ${isSelected
+//         ? "ring-2 ring-green-500 border-transparent shadow-[0_25px_60px_rgba(37,99,235,0.2)] scale-[1.02]"
+//         : "shadow-sm border-gray-100 hover:shadow-xl hover:-translate-y-2"
+//         }`}
+// >
+//     {/* Top Image & Floating Badge */}
+//     <div className="relative aspect-[12/11] overflow-hidden rounded-3xl shadow">
+//         <img
+//             src={place.images?.[0] || "/api/placeholder/400/250"}
+//             alt={place.name}
+//             className="h-full w-full object-cover transition-transform duration-[2s] group-hover:scale-110"
+//         />
+
+//         {/* Top Badge (Spicy Choice style) */}
+//         <div className="absolute top-4 left-4">
+//             <span className="flex items-center gap-1.5 backdrop-blur-[1px] bg-white/60 px-3 py-1.5 rounded-full text-[10px] font-bold text-gray-800 shadow-sm ">{place.city}</span>
+//         </div>
+
+//         {/* Elegant Selection Indicator */}
+//         <div className="absolute top-4 right-4">
+//             <div className={`h-7 w-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isSelected ? "bg-green-500 border-green-500 scale-110" : "bg-black/10 border-white/40 backdrop-blur-md"
+//                 }`}>
+//                 {isSelected && <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>}
+//             </div>
+//         </div>
+//     </div>
+
+//     {/* Content Body */}
+//     <div className="px-2 py-3 flex flex-col flex-grow rounded-3xl">
+//         {/* Title & Stats Row (Recipe Card inspiration) */}
+//         <div className="">
+//             <h3 className="text-xl font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
+//                 {place.name}
+//             </h3>
+//             <p className="text-[13px] text-gray-600  mt-1 leading-relaxed line-clamp-2">
+//                 {place.description}
+//             </p>
+//         </div>
+
+
+//         {/* Quick Info Bar (20 mins, 4 serving style) */}
+//         <div className="flex items-center justify-between py-3 ">
+//             <div className="flex flex-col items-center flex-1 border-r border-gray-100">
+//                 <span className="text-[10px] text-gray-400 font-bold">DISTANCE</span>
+//                 <span className="text-[12px] font-black text-gray-800 tracking-tight">{place.distance} km</span>
+//             </div>
+//             <div className="flex flex-col items-center flex-1 border-r border-gray-100">
+//                 <span className="text-[10px] text-gray-400 font-bold">STATE</span>
+//                 <span className="text-[12px] font-black text-gray-800 tracking-tight truncate px-1 w-full text-center">{place.state}</span>
+//             </div>
+
+//         </div>
+
+//         {/* Tags (Yogurt, Olive Oil style) */}
+//         <div className="flex flex-wrap gap-2 py-3">
+//             {place.categories?.slice(0, 3).map((cat) => (
+//                 <span key={cat} className="text-[10px] font-bold text-gray-700 bg-white/70 px-3 py-1.5 rounded-full hover:bg-gray-200 transition-colors capitalize">
+//                     {cat}
+//                 </span>
+//             ))}
+//             {place.categories?.length > 2 && <span className="text-[10px] font-bold text-gray-400  bg-gray-50 px-3 py-1.5 rounded-full">+2</span>}
+//         </div>
+
+
+//         {/* Action Button (Start Cooking style) */}
+//         <button
+//             onClick={(e) => { e.stopPropagation(); router.push(`/places/${place._id}`); }}
+//             className="w-full bg-black text-white py-3 rounded-2xl font-semibold hover:bg-gray-900 transition-all active:scale-95 cursor-pointer"
+//         >
+//             Explore Now
+
+//         </button>
+//     </div>
+// </div>
+
