@@ -194,7 +194,7 @@ export default function Places() {
     // 9 api
     const getRouteFromORS = async (coords) => {
         try {
-            const res = await fetch(`${process.env.ORS_API}`,
+            const res = await fetch("https://api.openrouteservice.org/v2/directions/driving-car/geojson",
                 {
                     method: "POST",
                     headers: {
